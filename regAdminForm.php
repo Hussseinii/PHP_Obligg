@@ -67,20 +67,22 @@ and open the template in the editor.
                 //her skjekke vi vis et bruker navn finnes fra frå
                 $sql = "SELECT BrukeNavn FROM user WHERE BrukeNavn='$bnavn'";
                 $result = $dbconn->query($sql);
-                $bnsjekke = $dbconn->num_rows();
+                //$bnsjekke = mysqli_num_rows($result);
+                $bnsjekke = $dbconn->num_rows($result);//does not work must fix it
                 if($bnsjekke > 0){
-                     header("Location: regAdminForm.php?error=empty");
+                     header("Location: regAdminForm.php?error=BrukeNavn");
                    exit();
                 }   
                 else
                 {
-                    
-                }
-                $sql = "INSERT INTO user(Fornavn, Etternavn, BrukerNavn, Passord) "
-                        . "VALUES('$fnavn', '$enavn', '$bnavn', '$passord')";
+                   $password_encrypted = password_hash($passord, PASSWORD_DEFAULT);
+                 $sql = "INSERT INTO user(Fornavn, Etternavn, BrukerNavn, Passord) "
+                        . "VALUES('$fnavn', '$enavn', '$bnavn', '$password_encrypted')";
                 $result = $dbconn->query($sql);
 
-                header("Location: index.php"); 
+                header("Location: index.php");  
+                }
+             
             }
            
         }

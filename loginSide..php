@@ -29,28 +29,45 @@ session_start();
           //  $bnavn = $_SESSION($_REQUEST["brukenavn"]);
            // $passord = $_SESSION($_REQUEST["passord"]);
             
-            $sql = "SELECT * FROM user WHERE BrukeNavn='$bnavn' AND Passord='$passord'";
+            
+            //her vil vi decrypterer password fra database
+            $sql = "SELECT * FROM user WHERE BrukeNavn='$bnavn'";
             $result = $dbconn->query($sql);
-           // $row = $result->fetch_object();
-           // $row = $result->fetch_assoc();
-            if($row = $dbconn->affected_rows>0){
+            $row = $result->fetch_assoc();
+            $hash_fromDB = $row['passord'];//passord fra database
+            $hash = password_verify($password, $hash_fromDB);//php metode som verifisere passord
+            
+            if($hash == 0){
+                 header("Location: regAdminForm.php?error=empty");
+                 exit();
+            }else{
+                      
+                $sql = "SELECT * FROM user WHERE BrukeNavn='$bnavn' AND Passord='$hash_fromDB'";
+                $result = $dbconn->query($sql);
+               // $row = $result->fetch_object();
+               //!$row = $result->fetch_assoc(); This should go into the if sentence
+                if($row = $dbconn->affected_rows>0){
+
+                    echo "Logget inn";
+                }            
+                else {
+                      echo "Brukenavn eller passord feilet <br>";
+                    $_SESSION['UserId'] = $row['UserId'];
+                }
+               // header("Location: index.php");
+    //            if($dbconn->affected_rows>0){
+    //                echo "Du er logget inn";
+    //                $_SESSION["UserId"] = $dbconn["UserId"]; 
+    //            }           
+    //            else
+    //            {
+    //                echo 'Du er ikke logget inn';
+    //               //$_SESSION['UserId'] = $result['UserId'];
+    //            }
                 
-                echo "Logget inn";
-            }            
-            else {
-                  echo "Brukenavn eller passord feilet <br>";
-                $_SESSION['UserId'] = $row['UserId'];
             }
-           // header("Location: index.php");
-//            if($dbconn->affected_rows>0){
-//                echo "Du er logget inn";
-//                $_SESSION["UserId"] = $dbconn["UserId"]; 
-//            }           
-//            else
-//            {
-//                echo 'Du er ikke logget inn';
-//               //$_SESSION['UserId'] = $result['UserId'];
-//            }
+            
+      
         }
         //hvis logget inn vis iden till den som er logget inn
         if(isset($_SESSION['UserId'])){
